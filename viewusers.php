@@ -26,8 +26,10 @@ mysqli_close($conn);
         }
     </style>
     <script>
-        function confirmDelete(id) {
-            if (confirm("Are you sure you want to delete this user?")) {
+        function confirmDelete(id, username) {
+            if (username === 'admin') {
+                alert("The admin user cannot be deleted.");
+            } else if (confirm("Are you sure you want to delete this user?")) {
                 window.location.href = "deleteuser.php?id=" + id;
             }
         }
@@ -58,7 +60,7 @@ mysqli_close($conn);
                     <td><?php echo htmlspecialchars($row['id']); ?></td>
                     <td><?php echo htmlspecialchars($row['username']); ?></td>
                     <td><?php echo htmlspecialchars($row['email']); ?></td>
-                    <td><a href="#" onclick="confirmDelete(<?php echo $row['id']; ?>)" class="delete-btn">Delete</a></td>
+                    <td><a href="#" onclick="confirmDelete(<?php echo $row['id']; ?>, '<?php echo $row['username']; ?>')" class="delete-btn">Delete</a></td>
                 </tr>
             <?php endwhile; ?>
         </table>

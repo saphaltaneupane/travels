@@ -2,16 +2,47 @@
 session_start();
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $admin_username = "admin";
-    $admin_password = "password123"; // In a real scenario, use hashed passwords
+    // Database connection parameters
+    $servername = "localhost";
+    $db_username = "root"; // Replace with your database username
+    $db_password = ""; // Replace with your database password
+    $dbname = "travels";
 
-    if ($_POST['username'] == $admin_username && $_POST['password'] == $admin_password) {
-        $_SESSION['admin'] = true;
-        header("Location: admin_panel.php");
-        exit();
-    } else {
-        $error = "Invalid username or password";
+    // Create a new MySQLi connection
+    $conn = new mysqli($servername, $db_username, $db_password, $dbname);
+
+    // Check the connection
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
     }
+
+    // Prepare and bind the SQL statement to fetch the admin credentials
+    $stmt = $conn->prepare("SELECT password FROM users WHERE username = ?");
+    $admin_username = 'admin';
+    $stmt->bind_param("s", $admin_username);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    // Check if the admin user exists
+    if ($result->num_rows === 1) {
+        $row = $result->fetch_assoc();
+        $admin_password = $row['password'];
+
+        // Verify the password (not hashed in the database)
+        if ($_POST['password'] === $admin_password) {
+            $_SESSION['admin'] = true;
+            header("Location: admin_panel.php");
+            exit();
+        } else {
+            $error = "Invalid username or password";
+        }
+    } else {
+        $error = "Admin user not found";
+    }
+
+    // Close the statement and connection
+    $stmt->close();
+    $conn->close();
 }
 ?>
 

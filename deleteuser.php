@@ -6,23 +6,20 @@ if (!isset($_SESSION['admin']) || $_SESSION['admin'] !== true) {
     exit();
 }
 
-if (isset($_GET['id'])) {
-    include 'dbcon.php';
+include 'dbcon.php';
 
-    $id = mysqli_real_escape_string($conn, $_GET['id']);
-    $delete_query = "DELETE FROM users WHERE id = '$id'";
-    
-    if (mysqli_query($conn, $delete_query)) {
-        mysqli_close($conn);
-        header("Location: viewusers.php");
-        exit();
-    } else {
-        echo "Error deleting record: " . mysqli_error($conn);
-    }
+$id = $_GET['id'];
 
-    mysqli_close($conn);
+$result = mysqli_query($conn, "SELECT username FROM users WHERE id = $id");
+$row = mysqli_fetch_assoc($result);
+
+if ($row['username'] === 'admin') {
+    echo "The admin user cannot be deleted.";
 } else {
+    mysqli_query($conn, "DELETE FROM users WHERE id = $id");
     header("Location: viewusers.php");
     exit();
 }
+
+mysqli_close($conn);
 ?>
